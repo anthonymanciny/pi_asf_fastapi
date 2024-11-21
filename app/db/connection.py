@@ -23,7 +23,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Carregar a URL do banco de dados da variável de ambiente DB_URL
-DB_URL = os.getenv("DB_URL", "mysql+pymysql://root:@localhost:3306/asf_db_teste")
+DB_URL = os.getenv("DB_URL")
 print("Banco Utilizado é", DB_URL)
 
 # Criando o engine (conexão com o banco)
