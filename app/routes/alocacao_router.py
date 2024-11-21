@@ -6,7 +6,6 @@ from app.db.depends import get_db
 
 alocacao_router = APIRouter(prefix="/alocacoes", tags=["Alocacoes"])
 
-
 @alocacao_router.post("/", response_model=AlocacaoResponse)
 def create_alocacao(alocacao_create: AlocacaoCreate, db: Session = Depends(get_db)):
     service = AlocacaoService(db)
@@ -16,16 +15,10 @@ def create_alocacao(alocacao_create: AlocacaoCreate, db: Session = Depends(get_d
 @alocacao_router.get("/{alocacao_id}", response_model=AlocacaoResponse)
 def get_alocacao(alocacao_id: int, db: Session = Depends(get_db)):
     service = AlocacaoService(db)
-    alocacao = service.get_alocacao_by_id(alocacao_id)
+    alocacao = service.get_alocacao(alocacao_id)
     if alocacao is None:
         raise HTTPException(status_code=404, detail="Alocacao not found")
     return alocacao
-
-
-@alocacao_router.get("/", response_model=list[AlocacaoResponse])
-def get_all_alocacoes(db: Session = Depends(get_db)):
-    service = AlocacaoService(db)
-    return service.get_all_alocacoes()
 
 
 @alocacao_router.put("/{alocacao_id}", response_model=AlocacaoResponse)
@@ -44,3 +37,8 @@ def delete_alocacao(alocacao_id: int, db: Session = Depends(get_db)):
     if alocacao is None:
         raise HTTPException(status_code=404, detail="Alocacao not found")
     return alocacao
+
+@alocacao_router.get("/", response_model=list[AlocacaoResponse])
+def list_alocacoes(db: Session = Depends(get_db)):
+    service = AlocacaoService(db)
+    return service.list_alocacoes()

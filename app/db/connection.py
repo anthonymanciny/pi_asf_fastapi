@@ -19,7 +19,7 @@ from sqlalchemy.orm import sessionmaker
 import os
 
 # Carregar variável de ambiente DB_URL
-DB_URL = os.getenv("DB_URL", "mysql+pymysql://root:@localhost:3306/fastapi_bd_teste")
+DB_URL = os.getenv("DB_URL", "mysql+pymysql://root:@localhost:3306/asf_db_teste")
 
 # Criando o engine (conexão com o banco)
 engine = create_engine(DB_URL, echo=True)

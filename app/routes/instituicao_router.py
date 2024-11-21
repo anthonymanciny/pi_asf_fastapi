@@ -17,16 +17,16 @@ def create_instituicao(instituicao_create: InstituicaoCreate, db: Session = Depe
 @instituticao_router.get("/{instituicao_id}", response_model=InstituicaoResponse)
 def get_instituicao(instituicao_id: int, db: Session = Depends(get_db)):
     service = InstituicaoService(db)
-    instituicao = service.get_instituicao_by_id(instituicao_id)
+    instituicao = service.get_instituicao(instituicao_id)
     if instituicao is None:
         raise HTTPException(status_code=404, detail="Instituicao not found")
     return instituicao
 
 
 @instituticao_router.get("/", response_model=list[InstituicaoResponse])
-def get_all_instituicoes(db: Session = Depends(get_db)):
-    service = InstituicaoService(db)
-    return service.get_all_instituicoes()
+def list_instituicoes(get_db: Session = Depends(get_db)):
+    pessoa = InstituicaoService(get_db)
+    return pessoa.list_instituicoes()
 
 
 @instituticao_router.put("/{instituicao_id}", response_model=InstituicaoResponse)

@@ -6,7 +6,6 @@ from app.db.depends import get_db
 
 pessoa_router = APIRouter(prefix="/pessoas", tags=["Pessoas"])
 
-
 @pessoa_router.post("/", response_model=PessoaResponse)
 def create_pessoa(pessoa_data: PessoaCreate, get_db: Session = Depends(get_db)):
     pessoa = PessoaService(get_db)
