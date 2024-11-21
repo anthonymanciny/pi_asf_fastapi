@@ -48,11 +48,11 @@ def upgrade() -> None:
     )
     op.create_table('espacoinstituicao',
     sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
-    sa.Column('id_instintuicao', sa.Integer(), nullable=True),
+    sa.Column('id_instituicao', sa.Integer(), nullable=True),
     sa.Column('nome', sa.String(255), nullable=False),
     sa.Column('capacidade', sa.String(255), nullable=False),
     sa.Column('responsavel', sa.String(255), nullable=False),
-    sa.ForeignKeyConstraint(['id_instintuicao'], ['instituicao.id'], ),
+    sa.ForeignKeyConstraint(['id_instituicao'], ['instituicao.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_table('participacao',
