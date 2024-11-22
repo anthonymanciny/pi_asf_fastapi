@@ -1,30 +1,21 @@
-# from decouple import config
-# from sqlalchemy import create_engine
-# from sqlalchemy.orm import sessionmaker
-
-
-# DB_URL = config('DB_URL')
-
-
-# engine = create_engine(DB_URL, pool_pre_ping=True)
-# SessionLocal=sessionmaker(bind=engine)
-
-
-
-
-# connection.py
-
+import os
+from dotenv import load_dotenv  # Importar load_dotenv
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-import os
-from dotenv import load_dotenv
 
 # Carregar as variáveis de ambiente do arquivo .env
 load_dotenv()
 
-# Carregar a URL do banco de dados da variável de ambiente DB_URL
-DB_URL = os.getenv("DB_URL")
-print("Banco Utilizado é", DB_URL)
+# Obter os valores das variáveis de ambiente
+USER = os.getenv("USER")
+PASSWORD = os.getenv("PASSWORD", "")  # Se a senha estiver vazia
+DATABASE_NAME = os.getenv("DATABASE_NAME")
+
+# Construir a URL de conexão com o banco de dados
+DB_URL = f"mysql+pymysql://{USER}:{PASSWORD}@localhost:3306/{DATABASE_NAME}"
+
+# Verificar se a URL foi formada corretamente
+print("Banco de dados URL:", DB_URL)
 
 # Criando o engine (conexão com o banco)
 engine = create_engine(DB_URL, echo=True)
