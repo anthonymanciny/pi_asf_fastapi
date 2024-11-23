@@ -2,98 +2,91 @@ from sqlalchemy import Column, String, Integer, Date, DateTime, ForeignKey
 from sqlalchemy.orm import relationship
 from app.db.Base import Base
 
-
+# Tabela Instituicao
 class Instituicao(Base):
-    __tablename__ = 'instituicao'
-    id = Column('id', Integer, primary_key=True, nullable=False, autoincrement=True)
-    nome = Column('nome', String, nullable=False)
-    email = Column('email', String, nullable=False)
-    endereco = Column('endereco', String, nullable=False)
-    telefone = Column('telefone', String, nullable=False)
-    observacao = Column('observacao', String, nullable=True)  # Alterado para nullable=True
+    __tablename__ = 'Instituicao_Social'
 
-    # Relacionamento com alocacoes
+    ID_Instituicao = Column(Integer, primary_key=True, autoincrement=True)
+    Nome = Column(String(35), nullable=False)
+    Email = Column(String(50), nullable=False)
+    Endereco = Column(String(60), nullable=False)
+    Telefone = Column(String(11), nullable=False)
+    Observacao = Column(String(100), nullable=True)
+
     alocacoes = relationship('Alocacao', back_populates='instituicao')
-
-    # Relacionamento com espaços
     espacos = relationship('EspacoInstituicao', back_populates='instituicao')
 
 
-class Pessoa(Base):
-    __tablename__ = 'pessoa'
-    id = Column('id', Integer, primary_key=True, nullable=False, autoincrement=True)
-    nome = Column('nome', String, nullable=False)
-    email = Column('email', String, nullable=True)
-    telefone = Column('celular', String, nullable=True)
-    cpf = Column('cpf', String, nullable=False)
-    data_nascimento = Column('datanascimento', Date, nullable=True)
-    genero = Column('genero', String, nullable=True)
-
-    # Relacionamento com participações
-    participacoes = relationship('Participacao', back_populates='pessoa')
-
-
-class Evento(Base):
-    __tablename__ = 'evento'
-    id = Column('id', Integer, primary_key=True, nullable=False, autoincrement=True)
-    nome = Column('nome', String, nullable=False)
-    datahora = Column('datahora', DateTime, nullable=False)
-    responsavel_evento = Column('responsavel_evento', String, nullable=False)
-
-    # Relacionamento com alocacoes
-    alocacoes = relationship('Alocacao', back_populates='evento')
-
-    # Relacionamento com participações
-    participacoes = relationship('Participacao', back_populates='evento')
-
-
-class Participacao(Base):
-    __tablename__ = 'participacao'
-    id = Column('id', Integer, primary_key=True, nullable=False, autoincrement=True)
-
-    # Chaves estrangeiras para as tabelas Evento e Pessoa
-    id_evento = Column(Integer, ForeignKey('evento.id', ondelete='CASCADE'))
-    id_pessoa = Column(Integer, ForeignKey('pessoa.id', ondelete='CASCADE'))
-
-    # Relacionamentos com as tabelas Evento e Pessoa
-    evento = relationship('Evento', back_populates='participacoes', foreign_keys=[id_evento])
-    pessoa = relationship('Pessoa', back_populates='participacoes', foreign_keys=[id_pessoa])
-
-    tipo = Column('tipo', String, nullable=False)
-
-
+# Tabela EspacoInstituicao
 class EspacoInstituicao(Base):
-    __tablename__ = 'espacoinstituicao'
-    id = Column('id', Integer, primary_key=True, nullable=False, autoincrement=True)
+    __tablename__ = 'Espaco_Instituicao'
 
-    # Chave estrangeira para Instituicao
-    id_instituicao = Column(Integer, ForeignKey('instituicao.id', ondelete='CASCADE'))
+    ID_Espaco_Instituicao = Column(Integer, primary_key=True, autoincrement=True)
+    ID_Instituicao = Column(Integer, ForeignKey('Instituicao_Social.ID_Instituicao', ondelete='CASCADE'))
+    Nome_Espaco = Column(String(30), nullable=False)
+    Capacidade = Column(Integer, nullable=False)
+    Responsavel = Column(String(35), nullable=False)
 
-    # Relacionamento com a tabela Instituicao
-    instituicao = relationship("Instituicao", back_populates="espacos")
-
-    nome = Column('nome', String, nullable=False)
-    capacidade = Column('capacidade', Integer, nullable=False)  # Alterado para Integer
-    responsavel = Column('responsavel', String, nullable=False)
-
-    # Relacionamento com alocacoes
+    instituicao = relationship('Instituicao', back_populates='espacos')
     alocacoes = relationship('Alocacao', back_populates='espaco')
 
 
+# Tabela Pessoa
+class Pessoa(Base):
+    __tablename__ = 'Pessoas'
+
+    ID_Pessoa = Column(Integer, primary_key=True, autoincrement=True)
+    Nome = Column(String(35), nullable=False)
+    Senha = Column(String(35), nullable=False)
+    Email = Column(String(50), unique=True, nullable=True)
+    Celular = Column(String(11), nullable=True)
+    Telefone = Column(String(11), nullable=True)
+    CPF = Column(String(11), unique=True, nullable=False)
+    DataNasc = Column(Date, nullable=True)
+    Genero = Column(String(1), nullable=True)
+
+    participacoes = relationship('Participacao', back_populates='pessoa')
+
+
+# Tabela Alocacao
 class Alocacao(Base):
-    __tablename__ = 'alocacao'
-    id = Column('id', Integer, primary_key=True, nullable=False, autoincrement=True)
+    __tablename__ = 'Alocacao'
 
-    # Chaves estrangeiras para Evento, Instituicao e EspacoInstituicao
-    id_evento = Column(Integer, ForeignKey('evento.id', ondelete='CASCADE'))
-    id_instituicao = Column(Integer, ForeignKey('instituicao.id', ondelete='CASCADE'))
-    id_espaco = Column(Integer, ForeignKey('espacoinstituicao.id', ondelete='CASCADE'))
+    ID_Alocacao = Column(Integer, primary_key=True, autoincrement=True)
+    ID_Evento = Column(Integer, ForeignKey('Eventos.ID_Evento', ondelete='CASCADE'))
+    ID_Instituicao = Column(Integer, ForeignKey('Instituicao_Social.ID_Instituicao', ondelete='CASCADE'))
+    ID_Espaco_Instituicao = Column(Integer, ForeignKey('Espaco_Instituicao.ID_Espaco_Instituicao', ondelete='CASCADE'))
+    DataHora = Column(DateTime, nullable=False)
+    Status = Column(Integer, nullable=False)
+    Responsavel_Local = Column(String(35), nullable=False)
 
-    # Relacionamentos com as tabelas Evento, Instituicao e EspacoInstituicao
-    evento = relationship('Evento', back_populates='alocacoes', foreign_keys=[id_evento])
-    instituicao = relationship('Instituicao', back_populates='alocacoes', foreign_keys=[id_instituicao])
-    espaco = relationship('EspacoInstituicao', back_populates='alocacoes', foreign_keys=[id_espaco])
+    evento = relationship('Evento', back_populates='alocacoes')
+    instituicao = relationship('Instituicao', back_populates='alocacoes')
+    espaco = relationship('EspacoInstituicao', back_populates='alocacoes')
 
-    datahora = Column('datahora', DateTime, nullable=False)
-    status = Column('status', String, nullable=False)
-    responsavel_local = Column('responsavel_local', String, nullable=False)
+
+# Tabela Evento
+class Evento(Base):
+    __tablename__ = 'Eventos'
+
+    ID_Evento = Column(Integer, primary_key=True, autoincrement=True)
+    NomeEvento = Column(String(35), nullable=False)
+    Responsavel_Evento = Column(String(35), nullable=False)
+    Status = Column(Integer, nullable=False)
+
+    alocacoes = relationship('Alocacao', back_populates='evento')
+    participacoes = relationship('Participacao', back_populates='evento')
+
+
+# Tabela Participacao
+class Participacao(Base):
+    __tablename__ = 'Participacao'
+
+    ID_Participacao = Column(Integer, primary_key=True, autoincrement=True)
+    ID_Evento = Column(Integer, ForeignKey('Eventos.ID_Evento', ondelete='CASCADE'))
+    ID_Pessoa = Column(Integer, ForeignKey('Pessoas.ID_Pessoa', ondelete='CASCADE'))
+    Tipo_Participacao = Column(String(1), nullable=False)
+
+    evento = relationship('Evento', back_populates='participacoes')
+    pessoa = relationship('Pessoa', back_populates='participacoes')
+

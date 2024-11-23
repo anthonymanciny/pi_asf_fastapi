@@ -4,11 +4,16 @@ from app.db.Base import Base
 
 
 class Pessoa(Base):
-    __tablename__ = 'pessoa'
-    id = Column('id', Integer, primary_key=True, nullable=False, autoincrement=True)
-    nome = Column('nome', String, nullable=False,)
-    email = Column('email', String, nullable=True)
-    telefone = Column('celular', String, nullable=True)
-    cpf = Column('cpf', String, nullable=False)
-    data_nascimento = Column('datanascimento', Date, nullable=True)
-    genero = Column('genero', String, nullable=True)
+    __tablename__ = 'Pessoas'
+
+    ID_Pessoa = Column(Integer, primary_key=True, autoincrement=True)
+    Nome = Column(String(35), nullable=False)
+    Senha = Column(String(35), nullable=False)
+    Email = Column(String(50), unique=True, nullable=True)
+    Celular = Column(String(11), nullable=True)
+    Telefone = Column(String(11), nullable=True)
+    CPF = Column(String(11), unique=True, nullable=False)
+    DataNasc = Column(Date, nullable=True)
+    Genero = Column(String(1), nullable=True)
+
+    participacoes = relationship('Participacao', back_populates='pessoa')
