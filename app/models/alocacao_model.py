@@ -1,7 +1,8 @@
-from sqlalchemy import Column, String, Integer, ForeignKey, DateTime
+from sqlalchemy import Column, String, Integer, ForeignKey, DateTime, CheckConstraint
 from sqlalchemy.orm import relationship
 from app.db.Base import Base
 
+#Tabela Alocacao
 class Alocacao(Base):
     __tablename__ = 'Alocacao'
 
@@ -13,6 +14,13 @@ class Alocacao(Base):
     Status = Column(Integer, nullable=False)
     Responsavel_Local = Column(String(35), nullable=False)
 
+    __table_args__ = (
+        CheckConstraint('ID_Alocacao <= 9999999999', name='check_IDAlocacao_max_10_digits'),
+        CheckConstraint('Status IN (1, 2, 3)', name='check_status_aloc_valid_values'),  #Restrição para valores 1, 2 ou 3
+
+    )
+
     evento = relationship('Evento', back_populates='alocacoes')
     instituicao = relationship('Instituicao', back_populates='alocacoes')
     espaco = relationship('EspacoInstituicao', back_populates='alocacoes')
+

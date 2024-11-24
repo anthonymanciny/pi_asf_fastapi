@@ -2,7 +2,7 @@ from sqlalchemy import Column, String, Integer, Date, DateTime, ForeignKey, CHAR
 from sqlalchemy.orm import relationship
 from app.db.Base import Base
 
-# Tabela Instituicao
+#Tabela Instituicao
 class Instituicao(Base):
     __tablename__ = 'Instituicao_Social'
 
@@ -21,7 +21,7 @@ class Instituicao(Base):
     espacos = relationship('EspacoInstituicao', back_populates='instituicao')
 
 
-# Tabela EspacoInstituicao
+#Tabela EspacoInstituicao
 class EspacoInstituicao(Base):
     __tablename__ = 'Espaco_Instituicao'
 
@@ -42,7 +42,7 @@ class EspacoInstituicao(Base):
     alocacoes = relationship('Alocacao', back_populates='espaco')
 
 
-# Tabela Pessoa
+#Tabela Pessoa
 class Pessoa(Base):
     __tablename__ = 'Pessoas'
 
@@ -64,7 +64,7 @@ class Pessoa(Base):
 
     participacoes = relationship('Participacao', back_populates='pessoa')
 
-# Tabela Alocacao
+#Tabela Alocacao
 class Alocacao(Base):
     __tablename__ = 'Alocacao'
 
@@ -87,7 +87,7 @@ class Alocacao(Base):
     espaco = relationship('EspacoInstituicao', back_populates='alocacoes')
 
 
-# Tabela Evento
+#Tabela Evento
 class Evento(Base):
     __tablename__ = 'Eventos'
 
@@ -106,7 +106,7 @@ class Evento(Base):
     participacoes = relationship('Participacao', back_populates='evento')
 
 
-# Tabela Participacao
+#Tabela Participacao
 class Participacao(Base):
     __tablename__ = 'Participacao'
 
