@@ -1,19 +1,26 @@
-from sqlalchemy import Column, String, Integer, ForeignKey, DateTime
+from sqlalchemy import Column, String, Integer, ForeignKey, DateTime, CheckConstraint
 from sqlalchemy.orm import relationship
 from app.db.Base import Base
 
+#Tabela Alocacao
 class Alocacao(Base):
-    __tablename__ = 'alocacao'
-    id = Column('id', Integer, primary_key=True, nullable=False, autoincrement=True)
+    __tablename__ = 'Alocacao'
 
-    id_evento = Column(Integer, ForeignKey('evento.id', ondelete='CASCADE'))
-    id_instituicao = Column(Integer, ForeignKey('instituicao.id', ondelete='CASCADE'))
-    id_espaco = Column(Integer, ForeignKey('espacoinstituicao.id', ondelete='CASCADE'))
+    ID_Alocacao = Column(Integer, primary_key=True, autoincrement=True)
+    ID_Evento = Column(Integer, ForeignKey('Eventos.ID_Evento', ondelete='CASCADE'))
+    ID_Instituicao = Column(Integer, ForeignKey('Instituicao_Social.ID_Instituicao', ondelete='CASCADE'))
+    ID_Espaco_Instituicao = Column(Integer, ForeignKey('Espaco_Instituicao.ID_Espaco_Instituicao', ondelete='CASCADE'))
+    DataHora = Column(DateTime, nullable=False)
+    Status = Column(Integer, nullable=False)
+    Responsavel_Local = Column(String(35), nullable=False)
 
-    evento = relationship('evento', foreign_keys=[id_evento])
-    instituicao = relationship('instituicao', foreign_keys=[id_instituicao])
-    espaco = relationship('espacoInstituicao', foreign_keys=[id_espaco])
+    __table_args__ = (
+        CheckConstraint('ID_Alocacao <= 9999999999', name='check_IDAlocacao_max_10_digits'),
+        CheckConstraint('Status IN (1, 2, 3)', name='check_status_aloc_valid_values'),  #Restrição para valores 1, 2 ou 3
 
-    datahora = Column('datahora', DateTime, nullable=False)
-    status = Column('status', String, nullable=False)
-    responsavel_local = Column('responsavel_local', String, nullable=False)
+    )
+
+    evento = relationship('Evento', back_populates='alocacoes')
+    instituicao = relationship('Instituicao', back_populates='alocacoes')
+    espaco = relationship('EspacoInstituicao', back_populates='alocacoes')
+

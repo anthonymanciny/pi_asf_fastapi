@@ -1,99 +1,126 @@
-from sqlalchemy import Column, String, Integer, Date, DateTime, ForeignKey
+from sqlalchemy import Column, String, Integer, Date, DateTime, ForeignKey, CHAR, CheckConstraint
 from sqlalchemy.orm import relationship
 from app.db.Base import Base
 
-
+#Tabela Instituicao
 class Instituicao(Base):
-    __tablename__ = 'instituicao'
-    id = Column('id', Integer, primary_key=True, nullable=False, autoincrement=True)
-    nome = Column('nome', String, nullable=False)
-    email = Column('email', String, nullable=False)
-    endereco = Column('endereco', String, nullable=False)
-    telefone = Column('telefone', String, nullable=False)
-    observacao = Column('observacao', String, nullable=True)  # Alterado para nullable=True
+    __tablename__ = 'Instituicao_Social'
 
-    # Relacionamento com alocacoes
+    ID_Instituicao = Column(Integer, primary_key=True, autoincrement=True)
+    Nome = Column(String(35), nullable=False)
+    Email = Column(String(50), nullable=False)
+    Endereco = Column(String(60), nullable=False)
+    Telefone = Column(CHAR(11), nullable=False)
+    Observacao = Column(String(100), nullable=True)
+
+    __table_args__ = (
+        CheckConstraint('ID_Instituicao <= 9999999999', name='check_id_max_10_digits'),  
+    )  #forma que achei para limitar caracteres numericos 
+
     alocacoes = relationship('Alocacao', back_populates='instituicao')
-
-    # Relacionamento com espaços
     espacos = relationship('EspacoInstituicao', back_populates='instituicao')
 
 
-class Pessoa(Base):
-    __tablename__ = 'pessoa'
-    id = Column('id', Integer, primary_key=True, nullable=False, autoincrement=True)
-    nome = Column('nome', String, nullable=False)
-    email = Column('email', String, nullable=True)
-    telefone = Column('celular', String, nullable=True)
-    cpf = Column('cpf', String, nullable=False)
-    data_nascimento = Column('datanascimento', Date, nullable=True)
-    genero = Column('genero', String, nullable=True)
-
-    # Relacionamento com participações
-    participacoes = relationship('Participacao', back_populates='pessoa')
-
-
-class Evento(Base):
-    __tablename__ = 'evento'
-    id = Column('id', Integer, primary_key=True, nullable=False, autoincrement=True)
-    nome = Column('nome', String, nullable=False)
-    datahora = Column('datahora', DateTime, nullable=False)
-    responsavel_evento = Column('responsavel_evento', String, nullable=False)
-
-    # Relacionamento com alocacoes
-    alocacoes = relationship('Alocacao', back_populates='evento')
-
-    # Relacionamento com participações
-    participacoes = relationship('Participacao', back_populates='evento')
-
-
-class Participacao(Base):
-    __tablename__ = 'participacao'
-    id = Column('id', Integer, primary_key=True, nullable=False, autoincrement=True)
-
-    # Chaves estrangeiras para as tabelas Evento e Pessoa
-    id_evento = Column(Integer, ForeignKey('evento.id', ondelete='CASCADE'))
-    id_pessoa = Column(Integer, ForeignKey('pessoa.id', ondelete='CASCADE'))
-
-    # Relacionamentos com as tabelas Evento e Pessoa
-    evento = relationship('Evento', back_populates='participacoes', foreign_keys=[id_evento])
-    pessoa = relationship('Pessoa', back_populates='participacoes', foreign_keys=[id_pessoa])
-
-    tipo = Column('tipo', String, nullable=False)
-
-
+#Tabela EspacoInstituicao
 class EspacoInstituicao(Base):
-    __tablename__ = 'espacoinstituicao'
-    id = Column('id', Integer, primary_key=True, nullable=False, autoincrement=True)
+    __tablename__ = 'Espaco_Instituicao'
 
-    # Chave estrangeira para Instituicao
-    id_instituicao = Column(Integer, ForeignKey('instituicao.id', ondelete='CASCADE'))
+    ID_instituicao = Column(Integer, ForeignKey('Instituicao_Social.ID_Instituicao', ondelete='CASCADE'))
+    ID_espaco_instituicao = Column(Integer, primary_key=True, autoincrement=True)
+    Nome_espaco = Column(String(30), nullable=False)
+    Capacidade = Column(Integer, nullable=False)
+    Responsavel = Column(String(35), nullable=False)
 
-    # Relacionamento com a tabela Instituicao
-    instituicao = relationship("Instituicao", back_populates="espacos")
+    __table_args__ = (
+        CheckConstraint('ID_espaco_instituicao <= 9999999999', name='check_IDEspaco_max_10_digits'), 
+        CheckConstraint('Capacidade <= 99999', name='check_IDCapacidade_max_5_digits'), 
 
-    nome = Column('nome', String, nullable=False)
-    capacidade = Column('capacidade', Integer, nullable=False)  # Alterado para Integer
-    responsavel = Column('responsavel', String, nullable=False)
+    )
 
-    # Relacionamento com alocacoes
+
+    instituicao = relationship('Instituicao', back_populates='espacos')
     alocacoes = relationship('Alocacao', back_populates='espaco')
 
 
+#Tabela Pessoa
+class Pessoa(Base):
+    __tablename__ = 'Pessoas'
+
+    ID_Pessoa = Column(Integer, primary_key=True, autoincrement=True)
+    Nome = Column(String(35), nullable=False)
+    Senha = Column(String(60), nullable=False) #Pra colocar tipo password eu vi que so usando salt e hash (sugestion)
+    Email = Column(String(50), unique=True, nullable=False)
+    Celular = Column(CHAR(11), unique=True, nullable=False) #adicionei unique aqui
+    Telefone = Column(CHAR(11), unique=True, nullable=True) #e aqui
+    CPF = Column(CHAR(11), unique=True, nullable=False)
+    DataNasc = Column(Date, nullable=False)
+    Genero = Column(CHAR(1), nullable=True)
+
+    __table_args__ = (
+        CheckConstraint('ID_Pessoa <= 9999999999', name='check_IDPessoa_max_10_digits'),
+        CheckConstraint('Genero IN ("1", "2")', name='check_genero_valid_values'),  # Restrição para valores M ou F (Sugestao mudar pra M ou F)
+
+    )
+
+    participacoes = relationship('Participacao', back_populates='pessoa')
+
+#Tabela Alocacao
 class Alocacao(Base):
-    __tablename__ = 'alocacao'
-    id = Column('id', Integer, primary_key=True, nullable=False, autoincrement=True)
+    __tablename__ = 'Alocacao'
 
-    # Chaves estrangeiras para Evento, Instituicao e EspacoInstituicao
-    id_evento = Column(Integer, ForeignKey('evento.id', ondelete='CASCADE'))
-    id_instituicao = Column(Integer, ForeignKey('instituicao.id', ondelete='CASCADE'))
-    id_espaco = Column(Integer, ForeignKey('espacoinstituicao.id', ondelete='CASCADE'))
+    ID_Alocacao = Column(Integer, primary_key=True, autoincrement=True)
+    ID_Evento = Column(Integer, ForeignKey('Eventos.ID_Evento', ondelete='CASCADE'))
+    ID_Instituicao = Column(Integer, ForeignKey('Instituicao_Social.ID_Instituicao', ondelete='CASCADE'))
+    ID_Espaco_Instituicao = Column(Integer, ForeignKey('Espaco_Instituicao.ID_Espaco_Instituicao', ondelete='CASCADE'))
+    DataHora = Column(DateTime, nullable=False)
+    Status = Column(Integer, nullable=False)
+    Responsavel_Local = Column(String(35), nullable=False)
 
-    # Relacionamentos com as tabelas Evento, Instituicao e EspacoInstituicao
-    evento = relationship('Evento', back_populates='alocacoes', foreign_keys=[id_evento])
-    instituicao = relationship('Instituicao', back_populates='alocacoes', foreign_keys=[id_instituicao])
-    espaco = relationship('EspacoInstituicao', back_populates='alocacoes', foreign_keys=[id_espaco])
+    __table_args__ = (
+        CheckConstraint('ID_Alocacao <= 9999999999', name='check_IDAlocacao_max_10_digits'),
+        CheckConstraint('Status IN (1, 2, 3)', name='check_status_aloc_valid_values'),  #Restrição para valores 1, 2 ou 3
 
-    datahora = Column('datahora', DateTime, nullable=False)
-    status = Column('status', String, nullable=False)
-    responsavel_local = Column('responsavel_local', String, nullable=False)
+    )
+
+    evento = relationship('Evento', back_populates='alocacoes')
+    instituicao = relationship('Instituicao', back_populates='alocacoes')
+    espaco = relationship('EspacoInstituicao', back_populates='alocacoes')
+
+
+#Tabela Evento
+class Evento(Base):
+    __tablename__ = 'Eventos'
+
+    ID_Evento = Column(Integer, primary_key=True, autoincrement=True)
+    NomeEvento = Column(String(35), nullable=False)
+    Responsavel_Evento = Column(String(35), nullable=False)
+    Status = Column(Integer, nullable=False)
+
+    __table_args__ = (
+        CheckConstraint('ID_Evento <= 9999999999', name='check_IDEvento_max_10_digits'),
+        CheckConstraint('Status IN (1, 2, 3, 4)', name='check_status_valid_values')
+
+    )
+
+    alocacoes = relationship('Alocacao', back_populates='evento')
+    participacoes = relationship('Participacao', back_populates='evento')
+
+
+#Tabela Participacao
+class Participacao(Base):
+    __tablename__ = 'Participacao'
+
+    ID_Participacao = Column(Integer, primary_key=True, autoincrement=True)
+    ID_Evento = Column(Integer, ForeignKey('Eventos.ID_Evento', ondelete='CASCADE'))
+    ID_Pessoa = Column(Integer, ForeignKey('Pessoas.ID_Pessoa', ondelete='CASCADE'))
+    tipo_participacao = Column(CHAR(1), nullable=False)
+
+    __table_args__ = (
+        CheckConstraint('ID_Participacao <= 9999999999', name='check_IDParticipacao_max_10_digits'),
+        CheckConstraint('tipo_participacao IN (1, 2)', name='check_participacao_valid_values')
+
+    )
+
+    evento = relationship('Evento', back_populates='participacoes')
+    pessoa = relationship('Pessoa', back_populates='participacoes')
+
